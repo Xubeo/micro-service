@@ -20,31 +20,51 @@ app.get("/books", async (req, res) => {
 
 app.get("/books/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const book = books.find(book => book.id === id);
+  const book = books.find((book) => book.id === id);
 
   if (book) {
     try {
-        const authorResponse = await axios.get(`http://localhost:4000/authors/${book.authorId}`);
-        const categoryResponse = await axios.get(`http://localhost:5000/categories/${book.categoryId}`);
-        const author = authorResponse.data;
-        const category = categoryResponse.data;
+      const authorResponse = await axios.get(
+        `http://localhost:4000/authors/${book.authorId}`
+      );
+      const categoryResponse = await axios.get(
+        `http://localhost:5000/categories/${book.categoryId}`
+      );
+      const author = authorResponse.data;
+      const category = categoryResponse.data;
 
-        const bookDetails = {
-            id: book.id,
-            title: book.title,
-            author: author.name,
-            category: category.name,
-        };
+      const bookDetails = {
+        id: book.id,
+        title: book.title,
+        author: author.name,
+        category: category.name,
+      };
 
-        res.json(bookDetails);
+      res.json(bookDetails);
     } catch (error) {
-      res.status(500).json({ error: "Erreur lors de la récupération des détails du livre" });
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la récupération des détails du livre" });
     }
   } else {
-    res.status(404).json({error: 'Livre non trouvé'});
+    res.status(404).json({ error: "Livre non trouvé" });
   }
 });
+
+app.get('/book/eventBook/:id', async(req, res) => {
+  res.send(JSON.stringify(await eventBook(req.params.id)))
+})
 
 app.listen(3000, () => {
   console.log("Microservices de gestion des livres démarré sur le port 3000");
 });
+
+const eventBook = async (id) => {
+  let returnElement = null;
+  bookList.forEach((element) => {
+    if (element.author_id == id) {
+      element.author_id = null;
+      returnElement = element;
+    }
+  });
+};
